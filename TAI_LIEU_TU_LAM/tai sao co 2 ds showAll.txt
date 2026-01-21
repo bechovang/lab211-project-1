@@ -1,0 +1,67 @@
+// Bước 1: Phúc tìm những người tên "Phúc"
+// Giả sử chỉ tìm thấy 2 người, 2 người này được bỏ vào túi phụ tên là 'ketQua'
+List<Customer> ketQua = listKH.filterByName("Phúc");
+
+// Bước 2: Phúc chỉ muốn in 2 người này thôi, chứ không in cả 100 người
+listKH.showAll(ketQua);
+
+
+---
+
+### 1. Tại sao có "2 cái túi" (`listKH` và `ketQua`)?
+
+Phúc hãy tưởng tượng trong kho có **2 loại túi**:
+
+* **Túi chính (`listKH`):**
+* **Thân phận:** Là túi "thông minh" (kiểu `Customers`).
+* **Nhiệm vụ:** Chứa toàn bộ khách hàng bạn có (ví dụ 100 người). Nó có sẵn các "năng lực" như: Lưu file, Đọc file, Tự kiểm tra trùng ID.
+
+
+* **Túi phụ (`ketQua`):**
+* **Thân phận:** Là túi "thường" (kiểu `ArrayList`).
+* **Nhiệm vụ:** Chỉ dùng để đựng tạm một nhóm nhỏ khách hàng (ví dụ 2 người tên Phúc vừa tìm thấy). Nó không có các năng lực cao cấp, chỉ đơn thuần là đồ đựng dữ liệu tạm thời.
+
+
+
+---
+
+### 2. Tại sao có "2 hàm hiển thị" (`showAll`)?
+
+Đây gọi là kỹ thuật Nạp chồng (Overloading), giúp chương trình xử lý linh hoạt:
+
+* **Hàm `showAll()` (Không đưa gì vào ngoặc):**
+* **Tác dụng:** Tự mở túi chính ra và in hết sạch mọi thứ đang có.
+* **Khi nào dùng:** Khi người dùng chọn "Xem toàn bộ danh sách".
+
+
+* **Hàm `showAll(List list)` (Đưa túi phụ vào ngoặc):**
+* **Tác dụng:** In nội dung của cái túi phụ mà bạn đưa cho nó.
+* **Khi nào dùng:** Sau khi bạn vừa lọc xong và chỉ muốn xem kết quả tìm kiếm (chứ không muốn xem lại cả 100 người).
+
+
+---
+
+### 3. Tại sao không gọi `ketQua.showAll()` được?
+
+* Vì `ketQua` là túi "thường" (`ArrayList`), mà trong "hướng dẫn sử dụng" của ArrayList **không có nút bấm** nào tên là `showAll`.
+* Chỉ có túi "thông minh" (`Customers`) mới có cái nút `showAll`.
+* Vì vậy, Phúc phải dùng túi thông minh `listKH` để in hộ dữ liệu trong túi thường `ketQua`.
+
+---
+
+### 4. Tóm tắt bằng sơ đồ chữ (Plaintext)
+
+```text
+DỮ LIỆU TỔNG (100 người)  ---> Nằm trong listKH (Túi thông minh)
+      |
+      V
+HÀNH ĐỘNG TÌM KIẾM        ---> Lọc ra 2 người tên "Phúc"
+      |
+      V
+DỮ LIỆU LỌC (2 người)     ---> Bỏ vào ketQua (Túi thường)
+      |
+      V
+HÀNH ĐỘNG IN              ---> Gọi listKH.showAll(ketQua) 
+                               (Mượn máy in của túi thông minh để in tờ giấy túi thường)
+
+```

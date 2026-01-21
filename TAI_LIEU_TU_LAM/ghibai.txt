@@ -1,0 +1,8 @@
+1. ý nghĩa tên folder
+- model: Chứa các khuôn mẫu đối tượng (như `Customer`, `Order`, `SetMenu`). Chỉ bao gồm thuộc tính, getter/setter và constructor.
+
+-business: Chứa các danh sách quản lý (`ArrayList`, `HashSet`) và logic xử lý chính (thêm, sửa, xóa, tính toán, kiểm tra trùng lặp).
+
+- tools: Chứa các tiện ích dùng chung như nhập liệu (`Inputter`), kiểm tra định dạng Regex (`Acceptable`), và đọc/ghi file (`FileUtils`).
+
+- dispatcher: Chứa hàm `main`. Chịu trách nhiệm hiển thị Menu và gọi các chức năng từ `business` để chạy chương trình.

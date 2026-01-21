@@ -1,0 +1,10 @@
+Hàm generateCode(): Bộ máy tạo mã tự động
+
+- Thay vì bắt bạn phải tự gõ mã đơn hàng (rất dễ trùng), hàm này dùng thời gian thực để làm mã.
+
+- new Date(): Lấy thời điểm chính xác ngay lúc bạn nhấn nút "Đặt hàng".
+
+- SimpleDateFormat("yyyyMMddhhmmss"): Định dạng ngày giờ thành một chuỗi số liên tục (Năm-Tháng-Ngày-Giờ-Phút-Giây).
+
+=> Kết quả: Bạn sẽ có một mã như 20260119111530. 
+Vì thời gian không bao giờ quay lại, nên mỗi đơn hàng sẽ có một mã số độc nhất vô nhị mà không cần lo trùng lặp.

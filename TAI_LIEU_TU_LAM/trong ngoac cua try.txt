@@ -1,0 +1,3 @@
+Trong ngoặc sau try chính là nơi Bạn khai báo các tài nguyên (Resources) cần được tự động đóng.
+
+Cơ chế: Ngay khi các dòng code bên trong dấu { } của try chạy xong (hoặc bị lỗi nửa chừng), Java sẽ tự động gọi hàm .close() cho cái fos này giúp Diệp. Bạn không cần phải viết finally { fos.close(); } dài dòng nữa.

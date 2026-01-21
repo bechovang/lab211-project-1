@@ -1,0 +1,48 @@
+1. Ký tự neo (Định vị)
+*	^ : Bắt buộc 'bắt đầu' chuỗi.
+*	$ : Bắt buộc 'kết thúc' chuỗi.
+=> Dùng cặp `^...$` để đảm bảo kiểm tra 'toàn bộ' chuỗi nhập vào, không chỉ một phần.
+
+
+2. Ký tự đại diện (Java String)
+Trong Java String, phải được viết là `\\`.
+*	\\d : Đại diện cho 'số' (digit) từ 0-9.
+*	\\w : Đại diện cho 'kí tự từ' (word character), gồm: a-z, A-Z, 0-9 và dấu gạch dưới `_`.
+*	. : Đại diện 'cho bất kỳ ký tự nào' (trừ dấu xuống dòng).
+*	\\. : ký tự dấu chấm
+
+
+3. Tập hợp ký tự `[...]`
+*   [CcGgKk] : Chỉ chấp nhận 1 ký tự nằm trong ngoặc (C, c, G, g, K, k).
+*   [a-zA-Z] : Chấp nhận các chữ cái từ a-z hoặc A-Z.
+*   [\\w.-] : Chấp nhận chữ, số, dấu chấm `.`, hoặc dấu gạch ngang `-`.
+
+
+4. Định lượng (Số lần xuất hiện)
+*   {4} : Xuất hiện chính xác 4 lần.
+*   {9} : Xuất hiện chính xác 9 lần.
+*   {3} : Xuất hiện chính xác 3 lần.
+*   {2,25} : Độ dài từ 2 đến 25 ký tự.
+*   {2,} : Độ dài từ 2 ký tự trở lên (không giới hạn tối đa).
+*   `+` : Xuất hiện 1 lần trở lên (tương đương `{1,}`).
+
+5. Ví dụ áp dụng:
+*	[CcGgKk]{2}  : Chỉ chấp nhận 2 ký tự nằm trong ngoặc (C, c, G, g, K, k). 
+*	[a-zA-Z]{2}  : Chấp nhận chính xác 2 ký tự liên tiếp là chữ cái tiếng Anh (bất kể viết hoa hay viết thường).
+
+
+
+6. Regex dùng để kiểm tra Email:
+
+[Tên-User] @ [Tên-Miền] . [Đuôi-Miền]
+"^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$"
+
+
+*lưu ý: [\\w.-] nhiều ký tự, còn [CcGgKk] 1 ký tự. Vì [\\w.-]  có dùng '+'. '+' là có ít nhất 1 ký tự trở lên.
+
+
+
+
+
+
+

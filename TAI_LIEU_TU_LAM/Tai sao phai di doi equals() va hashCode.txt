@@ -1,0 +1,33 @@
+1. Cơ chế của HashSet 
+- Khi Diệp thêm một Đơn hàng vào danh sách
+- Java thực hiện 2 bước:
+  + Bước 1 (Vòng gửi xe): Gọi hashCode() để tìm ngăn tủ.
+  + Bước 2 (Vòng đối soát): Nếu ngăn tủ đã có người, nó gọi equals() để xem có đúng là cùng 1 người không.
+
+
+2. Hậu quả khi "Có hashCode nhưng Không có equals"
+- Nếu chỉ config hashCode (dựa trên Khách + Món + Ngày), thì:
+  + Hai đơn hàng trùng nhau sẽ được đưa vào cùng một ngăn tủ (vì chung mã băm).
+  + Tại đây, Java gọi equals() mặc định để kiểm tra.
+  + Vì không viết lại equals, Java dùng đồ mặc định (so sánh địa chỉ vùng nhớ).
+=> Kết quả: Hai tờ đơn nằm ở hai chỗ khác nhau trong RAM nên Java bảo: "Không trùng!".
+=> Hậu quả: HashSet vẫn cho phép lưu cả hai đơn hàng trùng lặp. Công sức config hashCode của bạn coi như "đổ sông đổ biển".
+
+
+3. Tình huống "Thảm họa" ngược lại
+- chỉ viết equals, hashcode đơn giản - trả về 101.
+- Lúc này mọi đơn hàng đều chui vào 1 ngăn tủ. Java sẽ phải dùng equals để so sánh đơn hàng mới với tất cả đơn hàng cũ trong ngăn đó.
+=> Hậu quả: Chương trình sẽ chạy rất chậm khi danh sách đơn hàng lên đến hàng nghìn cái.
+
+- chỉ viết equals, hascode mặc định.
+- 1 đơn vô 101, 1 đơn 202. Java vì nằm khác chỗ nên java báo là "không trùng" àm ko dùng equal để check
+=> Hậu quả: check bị sai.
+
+
+Tóm lại: Quy tắc "Đôi bạn cùng tiến"
+- Trong Java có một "hợp đồng" (Contract) bất thành văn giữa hai hàm này:
+  + Nếu equals bảo True, thì hashCode BẮT BUỘC phải giống nhau.
+  + Nếu hashCode giống nhau, equals CÓ THỂ True hoặc False (nhưng nên là True để chạy nhanh).
+
+
+*Lời khuyên: Đừng bao giờ tách rời hai người bạn này. Một người giúp tìm kiếm nhanh (hashCode), một người giúp so sánh đúng (equals). Thiếu một trong hai, chức năng chống trùng của bài Lab sẽ bị hỏng ngay.

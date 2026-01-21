@@ -1,0 +1,15 @@
+
+1. TÁC DỤNG
+- Hãy tưởng tượng: Khi khai báo `implements Serializable`
+    + là đang dán một cái "tem thông hành" lên lớp `Customer` hay `Order`.
+    + Cái tem này nói với máy ảo Java (JVM) rằng: *"Này, đối tượng này được phép
+      chuyển đổi thành chuỗi bit để đem đi lưu trữ hoặc gửi đi nơi khác đấy!"*
+
+2. Tại sao bài Lab này BẮT BUỘC phải có nó?
+- Đề bài yêu cầu lưu dữ liệu vào file nhị phân (`.dat`). 
+  + Trong Java, để dùng được các "cỗ máy" ghi file đối tượng như `ObjectOutputStream`
+  + các đối tượng đó **phải** có tính năng `Serializable`.
+
+
+
+**Alex Tip 💡:** Chỉ cần nhớ quy tắc vàng: **Cứ hễ định lưu dữ liệu vào file `.dat` thì Class đó PHẢI có `implements java.io.Serializable**`.

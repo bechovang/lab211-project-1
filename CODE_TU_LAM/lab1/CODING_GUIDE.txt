@@ -1,0 +1,587 @@
+==============================================================================
+                    CODING GUIDE - PROJECT 1
+            Traditional Feast Order Management System
+                    Manual Coding Documentation
+==============================================================================
+
+Huong dan nay chi liet ke CAC TASK ma ban can code.
+Khong chua code san - ban phai tu viet.
+
+==============================================================================
+PHAN 1: MODEL LAYER (com.mycompany.lab1.model)
+==============================================================================
+
+TASK 1: Customer.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/model/Customer.java
+
+Requirements:
+- Package: com.mycompany.lab1.model
+- Implements: java.io.Serializable
+- Access modifier: public class
+
+Attributes (private):
+  - String id
+  - String name
+  - String phone
+  - String email
+
+Constructors:
+  1. Customer() - No args constructor
+  2. Customer(id, name, phone, email) - Full params constructor
+
+Methods:
+  - Getter cho tat ca attributes (getId, getName, getPhone, getEmail)
+  - Setter cho tat ca attributes (setId, setName, setPhone, setEmail)
+  - toString() - Format: | %-10s | %-25s | %-15s | %-30s |
+
+-----------------------------------------------------
+TASK 2: SetMenu.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/model/SetMenu.java
+
+Requirements:
+- Package: com.mycompany.lab1.model
+- Access modifier: public class
+
+Attributes (private):
+  - String menuId
+  - String menuName
+  - double price
+  - String ingredients
+
+Constructors:
+  1. SetMenu() - No args
+  2. SetMenu(menuId, menuName, price, ingredients) - Full params
+
+Methods:
+  - Getter/Setter cho tat ca attributes
+  - toString() - Format: | %-10s | %-30s | %15.0f Vnd | (khong in ingredients)
+
+-----------------------------------------------------
+TASK 3: Order.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/model/Order.java
+
+Requirements:
+- Package: com.mycompany.lab1.model
+- Implements: java.io.Serializable
+- Access modifier: public class
+- Imports: java.text.SimpleDateFormat, java.util.Date, java.util.Objects
+
+Attributes (private):
+  - String orderCode
+  - String customerId
+  - String menuId
+  - int numOfTables
+  - Date eventDate
+  - double totalCost
+
+Constructors:
+  1. Order() - No args
+  2. Order(orderCode, customerId, menuId, numOfTables, eventDate, totalCost)
+
+Methods:
+  - Getter/Setter cho tat ca attributes
+
+  - generateCode()
+    * Lay thoi gian hien tai: new Date()
+    * Format: "yyyyMMddHHmmss" (vi du: 20260122143025)
+    * Gan vao orderCode
+
+  - equals(Object o)
+    * Check this == o -> return true
+    * Check null || getClass() != o.getClass() -> return false
+    * Cast Order order = (Order) o
+    * Check TRUNG theo: customerId + menuId + eventDate (chi ngay thang nam)
+    * Su dung Objects.equals() de so sanh
+    * Format date: SimpleDateFormat("yyyyMMdd")
+
+  - hashCode()
+    * Return: Objects.hash(customerId, menuId, formattedDate)
+
+  - toString()
+    * Format date: SimpleDateFormat("dd/MM/yyyy")
+    * Format: | %-15s | %-10s | %-10s | %-10d | %-12s | %12.0f |
+
+==============================================================================
+PHAN 2: TOOLS LAYER (com.mycompany.lab1.tools)
+==============================================================================
+
+-----------------------------------------------------
+TASK 4: Acceptable.java (Interface)
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/tools/Acceptable.java
+
+Requirements:
+- Package: com.mycompany.lab1.tools
+- public interface
+
+Constants (public static final String):
+  - CUS_ID_VALID = "^[CcGgKk]\\d{4}$"       (C/G/K + 4 so)
+  - NAME_VALID = "^.{2,25}$"                (2-25 ky tu bat ky)
+  - PHONE_VALID = "^0\\d{9}$"               (0 + 9 so)
+  - EMAIL_VALID = "^[\\w.-]+@[\\w.-]+[.][a-zA-Z]{2,}$"
+  - MENU_ID_VALID = "^PW\\d{3}$"            (PW + 3 so)
+  - INTEGER_VALID = "^[1-9]\\d*"            (So nguyen duong)
+
+Methods:
+  - static boolean isValid(String data, String pattern)
+    * Check data != null
+    * Return data.matches(pattern)
+
+-----------------------------------------------------
+TASK 5: Inputter.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/tools/Inputter.java
+
+Requirements:
+- Package: com.mycompany.lab1.tools
+- Imports: java.util.Scanner
+- public class
+
+Attributes:
+  - private static Scanner scanner = new Scanner(System.in)
+
+Methods:
+  - public static String getString(String mess)
+    Loop:
+      - Print mess
+      - Read line: scanner.nextLine().trim()
+      - If not empty -> return
+      - Else: print "Cannot be empty!"
+
+  - public static int getInt(String mess)
+    Loop:
+      - Call getString(mess)
+      - If Acceptable.isValid(input, INTEGER_VALID) -> return Integer.parseInt(input)
+      - Else: print "Invalid!"
+
+  - public static String getValidString(String mess, String pattern)
+    Loop:
+      - Call getString(mess)
+      - If Acceptable.isValid(input, pattern) -> return input
+      - Else: print "Invalid format!"
+
+-----------------------------------------------------
+TASK 6: FileUtils.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/tools/FileUtils.java
+
+Requirements:
+- Package: com.mycompany.lab1.tools
+- Imports: java.io.*, java.util.ArrayList, java.util.List, com.mycompany.lab1.model.SetMenu
+- public class
+
+Methods:
+
+  1. public static <T> void saveToFile(List<T> list, String filePath)
+     - Generic method - luu bat ky list nao
+     - Use: FileOutputStream, ObjectOutputStream (try-with-resources)
+     - Loop qua list -> oos.writeObject(item)
+     - Print "Luu du lieu thanh cong!"
+     - Catch IOException -> print error
+
+  2. public static <T> List<T> readFromFile(String filePath)
+     - Generic method - doc bat ky list nao
+     - Tao ArrayList rong
+     - Tao File object
+     - if (!file.exists()) -> return list rong (quan trong!)
+     - Use: FileInputStream, ObjectInputStream (try-with-resources)
+     - Loop while (fis.available() > 0)
+       - T obj = (T) ois.readObject()
+       - list.add(obj)
+     - Catch IOException | ClassNotFoundException -> print error
+     - Return list
+
+  3. public static List<SetMenu> readMenus(String filePath)
+     - Doc CSV file -> List<SetMenu>
+     - Use: BufferedReader, FileReader (try-with-resources)
+     - Loop while ((line = br.readLine()) != null)
+       - Split by "," -> parts
+       - If parts.length >= 4:
+         - id = parts[0].trim()
+         - name = parts[1].trim()
+         - price = Double.parseDouble(parts[2].trim())
+         - ingredients = parts[3].trim()
+         - list.add(new SetMenu(id, name, price, ingredients))
+     - Return list
+
+==============================================================================
+PHAN 3: BUSINESS LAYER (com.mycompany.lab1.bussiness)
+==============================================================================
+
+-----------------------------------------------------
+TASK 7: Workable.java (Generic Interface)
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/bussiness/Workable.java
+
+Requirements:
+- Package: com.mycompany.lab1.bussiness
+- public interface Workable<T>
+
+Methods (abstract):
+  - void addNew(T x)
+  - void update(T x)
+  - T searchById(String id)
+  - void showAll()
+
+-----------------------------------------------------
+TASK 8: Customers.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/bussiness/Customers.java
+
+Requirements:
+- Package: com.mycompany.lab1.bussiness
+- Extends: ArrayList<Customer>
+- Implements: Workable<Customer>
+
+Attributes (private):
+  - String pathFile = "data/customers.dat"
+  - boolean isSaved
+
+Constructor:
+  - Customers()
+    * Set pathFile
+    * Set isSaved = true
+
+Methods (@Override tu Workable):
+
+  1. public void addNew(Customer customer)
+     - Loop qua this (duyet danh sach hien tai)
+     - If any c.getId().equalsIgnoreCase(customer.getId())
+       -> Print "ma KH nay da ton tai" -> return
+     - this.add(customer)
+     - isSaved = false
+     - Print "Them KH thanh cong!"
+
+  2. public void update(Customer customer)
+     - Loop for (int i=0; i<this.size(); i++)
+     - Get Customer k = this.get(i)
+     - If k.getId().equalsIgnoreCase(customer.getId())
+       -> this.set(i, customer)
+       -> isSaved = false
+       -> Print "Cap nhat KH thanh cong!"
+       -> return
+     - Print "Loi: khong tim thay KH"
+
+  3. public Customer searchById(String id)
+     - Loop foreach
+     - If c.getId().equalsIgnoreCase(id) -> return c
+     - Return null
+
+  4. public void showAll() - overload 1
+     - If this.isEmpty() -> Print "Danh sach trong!" -> return
+     - Loop foreach -> Print each c
+
+  5. public void showAll(List<Customer> list) - overload 2
+     - If list.isEmpty() -> Print "Danh sach trong!" -> return
+     - Loop foreach -> Print each c
+
+Other methods:
+
+  6. public List<Customer> filterByName(String name)
+     - Tao List<Customer> l = new ArrayList<>()
+     - Loop foreach
+     - If c.getName().toLowerCase().contains(name.toLowerCase())
+       -> l.add(c)
+     - Return l
+
+  7. public void readFromFile()
+     - Call FileUtils.readFromFile(pathFile) -> List<Customer> data
+     - If data != null:
+       - this.clear()
+       - this.addAll(data)
+       - isSaved = true
+       - Print "Nap du lieu thanh cong!"
+
+  8. public void saveToFile()
+     - Convert this to ArrayList: new ArrayList<>(this)
+     - Call FileUtils.saveToFile(list, pathFile)
+     - isSaved = true
+     - Print "Da luu file thanh cong!"
+
+-----------------------------------------------------
+TASK 9: FeastMenus.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/bussiness/FeastMenus.java
+
+Requirements:
+- Package: com.mycompany.lab1.bussiness
+- Extends: ArrayList<SetMenu>
+
+Attributes (private):
+  - String pathFile = "data/FeastMenu.csv"
+
+Constructor:
+  - FeastMenus()
+    * Set pathFile
+    * Call loadData()
+
+Methods:
+
+  1. private void loadData()
+     - Call FileUtils.readMenus(pathFile) -> List<SetMenu> list
+     - If list != null && !list.isEmpty():
+       - this.clear()
+       - this.addAll(list)
+       - Print "nap du lieu thanh cong!"
+     - Else:
+       - Print "Loi: khong thay thuc don nao de nap!"
+
+  2. public SetMenu getMenuById(String id)
+     - Loop foreach
+     - If menu.getMenuId().equalsIgnoreCase(id) -> return menu
+     - Return null
+
+  3. public void showAll()
+     - Loop foreach -> Print each menu
+
+-----------------------------------------------------
+TASK 10: Orders.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/bussiness/Orders.java
+
+Requirements:
+- Package: com.mycompany.lab1.bussiness
+- Extends: ArrayList<Order>
+- Implements: Workable<Order>
+
+Attributes (private):
+  - String pathFile = "data/orders.dat"
+  - boolean isSaved
+
+Constructor:
+  - Orders()
+    * Set pathFile
+    * isSaved = true
+    * Call readFromFile() (auto load khi khoi tao)
+
+Methods (@Override tu Workable):
+
+  1. public void addNew(Order x) - Implement interface
+     - this.add(x)
+     - isSaved = false
+
+  2. public void update(Order x)
+     - Loop for (int i=0; i<this.size(); i++)
+     - Get Order o = this.get(i)
+     - If o.getOrderCode().equalsIgnoreCase(x.getOrderCode())
+       -> this.set(i, x)
+       -> isSaved = false
+       -> Print "Cap nhat Order thanh cong!"
+       -> return
+     - Print "Loi: khong tim thay Order"
+
+  3. public Order searchById(String id)
+     - Loop foreach
+     - If o.getOrderCode().equalsIgnoreCase(id) -> return o
+     - Return null
+
+  4. public void showAll()
+     - If this.isEmpty() -> Print "Danh sach Order trong!" -> return
+     - Loop foreach -> Print each o
+
+Other methods:
+
+  5. public void addNew(Order order, Customers listKH, FeastMenus listMenu)
+     - Validate: listKH.searchById(order.getCustomerId()) == null
+       -> Print "Loi: id KH ko ton tai" -> return
+     - Validate: listMenu.getMenuById(order.getMenuId()) == null
+       -> Print "Loi: id Menu ko ton tai" -> return
+     - Get SetMenu menu = listMenu.getMenuById(order.getMenuId())
+     - Calculate: double total = order.getNumOfTables() * menu.getPrice()
+     - order.setTotalCost(total)
+     - order.generateCode()  // QUAN TRONG
+     - this.add(order)
+     - isSaved = false
+     - Print "Dat tiec thanh cong!"
+
+  6. public boolean isDuplicate(Order order)
+     - return this.contains(order)  // Goi equals() da override
+
+  7. public void readFromFile()
+     - Call FileUtils.readFromFile(pathFile) -> List<Order> o
+     - If o != null:
+       - this.clear()
+       - this.addAll(o)
+
+  8. public void saveToFile()
+     - Convert this to ArrayList<Order>
+     - Call FileUtils.saveToFile(o, pathFile)
+     - isSaved = true
+
+==============================================================================
+PHAN 4: DISPATCHER LAYER (com.mycompany.lab1.dispathcher)
+==============================================================================
+
+-----------------------------------------------------
+TASK 11: Main.java
+-----------------------------------------------------
+Location: src/main/java/com/mycompany/lab1/dispathcher/Main.java
+
+Requirements:
+- Package: com.mycompany.lab1.dispathcher
+- Imports: Scanner, Date, cac class tu package khac
+- public class Main
+
+Attributes (private static final):
+  - Scanner sc = new Scanner(System.in)
+  - Customers listKH = new Customers()
+  - FeastMenus listMenu = new FeastMenus()
+  - Orders listOrder = new Orders()
+
+main(String[] args):
+  1. listKH.readFromFile()
+  2. listOrder.readFromFile()
+  3. runMenu()
+
+runMenu():
+  - do-while loop
+  - Display menu:
+    ========= FEAST ORDER SYSTEM =========
+    1. Register customers
+    2. Update customer information
+    3. Display feast menus
+    4. Place a feast order
+    5. Save data to file
+    6. Display orders
+    0. Exit program
+    Select:
+  - Read choice (try-catch NumberFormatException)
+  - Call processChoice(choice)
+  - Loop while choice != 0
+
+processChoice(int choice):
+  - switch (choice):
+    case 1: addNewCustomer(); break
+    case 2: updateCustomer(); break
+    case 3: listMenu.showAll(); break
+    case 4: addNewOrder(); break
+    case 5: saveData(); break
+    case 6: showOrders(); break
+    case 0: Print "Goodbye!"; break
+
+addNewCustomer() - Chuc nang 1:
+  - Print "--- Add Customer ---"
+  - String id = Inputter.getValidString("ID (Cxxxx): ", Acceptable.CUS_ID_VALID)
+  - String name = Inputter.getValidString("Name (2-25 chars): ", Acceptable.NAME_VALID)
+  - String phone = Inputter.getValidString("Phone (0+9 digits): ", Acceptable.PHONE_VALID)
+  - String email = Inputter.getValidString("Email: ", Acceptable.EMAIL_VALID)
+  - listKH.addNew(new Customer(id, name, phone, email))
+
+updateCustomer() - Chuc nang 2:
+  - String id = Inputter.getString("Enter Customer ID to update: ")
+  - Customer c = listKH.searchById(id)
+  - If c == null -> Print "Not found!"
+  - Else:
+    - Print "Current info: " + c
+    - c.setName(Inputter.getValidString("New Name: ", Acceptable.NAME_VALID))
+    - c.setPhone(Inputter.getValidString("New Phone: ", Acceptable.PHONE_VALID))
+    - c.setEmail(Inputter.getValidString("New Email: ", Acceptable.EMAIL_VALID))
+    - Print "Updated successfully!"
+
+addNewOrder() - Chuc nang 4:
+  - If listKH.isEmpty() -> Print "Error: No customers in system!" -> return
+  - String cId = Inputter.getString("Customer ID: ")
+  - If listKH.searchById(cId) == null -> Print "Customer not found!" -> return
+  - listMenu.showAll()  // Hien thi menu de chon
+  - String mId = Inputter.getValidString("Menu ID (PWxxx): ", Acceptable.MENU_ID_VALID)
+  - If listMenu.getMenuById(mId) == null -> Print "Menu not found!" -> return
+  - int tables = Inputter.getInt("Number of tables: ")
+  - Order ord = new Order()
+  - ord.setCustomerId(cId)
+  - ord.setMenuId(mId)
+  - ord.setNumOfTables(tables)
+  - ord.setEventDate(new Date())  // Ngay hien tai
+  - listOrder.addNew(ord, listKH, listMenu)  // Goi method co validate
+
+saveData() - Chuc nang 5:
+  - listKH.saveToFile()
+  - listOrder.saveToFile()
+  - Print "All data saved to binary files!"
+
+showOrders() - Chuc nang 6:
+  - If listOrder.isEmpty() -> Print "No orders to display." -> return
+  - Print "--- ORDER LIST ---"
+  - Loop foreach -> Print each o
+
+==============================================================================
+PHAN 5: DATA FILES
+==============================================================================
+
+TASK 12: Tao thu muc data
+-----------------------------------------------------
+Location: lab1/data/
+
+Files can tao:
+  1. data/ (thu muc)
+  2. data/FeastMenu.csv (file menu mau)
+
+FeastMenu.csv format (CSV - comma separated):
+  PW001,Tiec Cuoi VIP,5000000,Lau ca ho diep, vit quay, goi cuon dac biet
+  PW002,Tiec Sinh Nhat,2000000,Banh kem 2 tang, mi xao ga, tra dao
+  PW003,Tiec Hoi Ngo,3500000,Com nieu, cha gio, canh ga chua ngot
+  PW004,Tiec Doi Ngoai,3000000,Nhung toi, cuon diem tan, goi sen son trang
+  PW005,Tiec Ky Niem,2500000,Banh chung, gio cha, dong xanh huong dua
+  PW006,Tiec Cong Ty,4000000,Buffet 20 mon, bia tuoi, tra cuoi
+  PW007,Tiec Tan Gia,6000000,Abalone hut tieu, cua hoang de, bau bao ngoc
+  PW008,Tiec Tiec,1500000,Com tam suon nuong, bia hoi, tra dua
+
+Files se tu dong tao khi save:
+  - data/customers.dat
+  - data/orders.dat
+
+==============================================================================
+PHAN 6: TESTING CHECKLIST
+==============================================================================
+
+Sau khi code xong, test cac chuc nang sau:
+
+[ ] 1. Chay chuong trinh lan dau - khong bao loi file khong ton tai
+[ ] 2. Chon 3 - Display feast menus -> Hien thi 8 menus tu CSV
+[ ] 3. Chon 1 - Register customers:
+    - Nhap thong tin (C0001, Nguyen Van A, 0123456789, a@gmail.com)
+    - Nhap trung ID -> Co bao "ma KH nay da ton tai"
+    - Nhap sai format -> Co bao "Invalid format!"
+[ ] 4. Chon 1 - Them them 2-3 customers nua
+[ ] 5. Chon 6 - Display orders -> "No orders to display"
+[ ] 6. Chon 4 - Place a feast order:
+    - Chon customer co san
+    - Chon menu co san
+    - Nhap so ban (tables)
+    - Kiem tra order code da duoc generate
+[ ] 7. Chon 6 - Display orders -> Hien thi order vua dat
+[ ] 8. Chon 2 - Update customer:
+    - Nhap ID co san
+    - Cap nhat thong tin moi
+    - Verify da duoc cap nhat
+[ ] 9. Chon 5 - Save data to file
+[ ] 10. Exit va chay lai -> Du lieu da duoc load tu file
+
+==============================================================================
+PHAN 7: BUILD & DEPLOY
+==============================================================================
+
+Build command:
+  mvn clean install
+
+Run command:
+  mvn exec:java -Dexec.mainClass="com.mycompany.lab1.dispathcher.Main"
+
+Hoac chay JAR:
+  java -jar target/lab1-1.0-SNAPSHOT.jar
+
+==============================================================================
+KET THUC CODING GUIDE
+==============================================================================
+
+Tong so tasks: 12
+Tong so files: 11
+  - Model: 3 files (Customer, SetMenu, Order)
+  - Tools: 3 files (Acceptable, Inputter, FileUtils)
+  - Business: 4 files (Workable, Customers, FeastMenus, Orders)
+  - Dispatcher: 1 file (Main)
+  - Data: 1 file (FeastMenu.csv)
+
+Chuc ban thanh cong!

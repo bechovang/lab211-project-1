@@ -1,0 +1,143 @@
+package com.mycompany.lab1.dispathcher;
+
+import com.mycompany.lab1.bussiness.*;
+import com.mycompany.lab1.model.*;
+import com.mycompany.lab1.tools.*;
+import java.util.Scanner;
+import java.util.Date;
+
+public class Main {
+    // Dung Scanner rieng de quan ly Menu
+    private static final Scanner sc = new Scanner(System.in);
+    
+    // Khoi tao cac doi tuong nghiep vu
+    private static final Customers listKH = new Customers();
+    private static final FeastMenus listMenu = new FeastMenus();
+    private static final Orders listOrder = new Orders();
+
+    public static void main(String[] args) {
+        // 1. Nap du lieu tu file khi khoi dong
+        listKH.readFromFile();
+        listOrder.readFromFile();
+        // listMenu da tu nap trong constructor cua FeastMenus
+
+        // 2. Chay chuong trinh
+        runMenu();
+    }
+
+    private static void runMenu() {
+        int choice;
+        do {
+            System.out.println("\n========= FEAST ORDER SYSTEM =========");
+            System.out.println("1. Register customers");
+            System.out.println("2. Update customer information");
+            System.out.println("3. Display feast menus");
+            System.out.println("4. Place a feast order");
+            System.out.println("5. Save data to file");
+            System.out.println("6. Display orders");
+            System.out.println("0. Exit program");
+            System.out.print("Select: ");
+
+            try {
+                choice = Integer.parseInt(sc.nextLine());
+                processChoice(choice);
+            } catch (Exception e) {
+                System.out.println("Loi: Vui long chi nhap so tu 0-6!");
+                choice = -1;
+            }
+        } while (choice != 0); // Lap cho den khi bam 0
+    }
+
+    private static void processChoice(int choice) {
+        switch (choice) {
+            case 1: addNewCustomer(); break;
+            case 2: updateCustomer(); break;
+            case 3: listMenu.showAll(); break;
+            case 4: addNewOrder(); break;
+            case 5: saveData(); break;
+            case 6: showOrders(); break;
+            case 0: System.out.println("Goodbye!"); break;
+        }
+    }
+
+    // Chuc nang 1: Dang ky khach hang moi
+    private static void addNewCustomer() {
+        System.out.println("\n--- Add Customer ---");
+        // Tan dung Inputter static va Regex tu Acceptable
+        String id = Inputter.getValidString("ID (Cxxxx): ", Acceptable.CUS_ID_VALID); 
+        String name = Inputter.getValidString("Name (2-25 chars): ", Acceptable.NAME_VALID);
+        String phone = Inputter.getValidString("Phone (0+9 digits): ", Acceptable.PHONE_VALID);
+        String email = Inputter.getValidString("Email: ", Acceptable.EMAIL_VALID);
+
+        listKH.addNew(new Customer(id, name, phone, email));
+    }
+
+    // Chuc nang 2: Cap nhat thong tin khach hang
+    private static void updateCustomer() {
+        String id = Inputter.getString("Enter Customer ID to update: ");
+        Customer c = listKH.searchById(id);
+        if (c == null) {
+            System.out.println("Not found!");
+        } else {
+            System.out.println("Current info: " + c);
+            c.setName(Inputter.getValidString("New Name: ", Acceptable.NAME_VALID));
+            c.setPhone(Inputter.getValidString("New Phone: ", Acceptable.PHONE_VALID));
+            c.setEmail(Inputter.getValidString("New Email: ", Acceptable.EMAIL_VALID));
+            System.out.println("Updated successfully!");
+        }
+    }
+
+    // Chuc nang 4: Dat tiec moi
+    private static void addNewOrder() {
+        if (listKH.isEmpty()) {
+            System.out.println("Error: No customers in system!");
+            return;
+        }
+        
+        // Nhap va kiem tra ma khach
+        String cId = Inputter.getString("Customer ID: ");
+        if (listKH.searchById(cId) == null) {
+            System.out.println("Customer not found!");
+            return;
+        }
+
+        // Hien menu va nhap ma thuc don
+        listMenu.showAll();
+        String mId = Inputter.getValidString("Menu ID (PWxxx): ", Acceptable.MENU_ID_VALID);
+        if (listMenu.getMenuById(mId) == null) {
+            System.out.println("Menu not found!");
+            return;
+        }
+
+        int tables = Inputter.getInt("Number of tables: ");
+
+        // Tao doi tuong Order
+        Order ord = new Order();
+        ord.setCustomerId(cId);
+        ord.setMenuId(mId);
+        ord.setNumOfTables(tables);
+        ord.setEventDate(new Date());
+
+        // Goi Business Orders de tinh tien va check trung
+        listOrder.addNew(ord, listKH, listMenu);
+    }
+
+    // Chuc nang 5: Luu vao file dat
+    private static void saveData() {
+        listKH.saveToFile();
+        listOrder.saveToFile();
+        System.out.println("All data saved to binary files!");
+    }
+
+    // Chuc nang 6: Hien thi danh sach don hang
+    private static void showOrders() {
+        if (listOrder.isEmpty()) {
+            System.out.println("No orders to display.");
+            return;
+        }
+        System.out.println("\n--- ORDER LIST ---");
+        for (Order o : listOrder) {
+            System.out.println(o); // Goi toString() cua Order
+        }
+    }
+}

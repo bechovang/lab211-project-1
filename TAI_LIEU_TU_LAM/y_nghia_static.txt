@@ -1,0 +1,16 @@
+Tại sao lại dùng static?
+
+Từ khóa static biến hàm này thành một hàm tiện ích (utility function) dùng chung.
+
+Không cần tạo đối tượng (No new): Bạn không cần phải viết Acceptable a = new Acceptable(); rồi mới dùng được.
+
+Gọi trực tiếp: Bạn có thể gọi nó ở bất cứ đâu trong chương trình bằng cách gọi tên class:
+
+// Gọi ngay lập tức
+if (Acceptable.isValid("K1234", Acceptable.CUS_ID_VALID)) { ... }
+
+Nó giống như cái búa treo trên tường, ai cần thì lấy dùng, không cần phải xây cả cái xưởng (tạo object) mới dùng được cái búa.
+
+
+
+=> có static => Không cần tạo đối tượng (No new)

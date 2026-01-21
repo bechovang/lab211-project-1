@@ -1,0 +1,94 @@
+public static <T> List<T> readFromFile(String filePath) {
+    List<T> list = new ArrayList<>();
+    File file = new File(filePath);
+    if (!file.exists()) return list;
+
+    try (FileInputStream fis = new FileInputStream(file);
+         ObjectInputStream ois = new ObjectInputStream(fis)) {
+        while (fis.available() > 0) {
+            @SuppressWarnings("unchecked")
+            T obj = (T) ois.readObject();
+            list.add(obj);
+        }
+    } catch (IOException | ClassNotFoundException e) {
+        System.err.println("Error: " + e.getMessage());
+    }
+    return list;
+}
+
+
+=============================
+
+
+
+
+### 1. Giải thích chi tiết code
+
+<T> (Generics):
+Đây là "kiểu dữ liệu đại diện". Khi gọi hàm này cho `Customer`, `T` sẽ là `Customer`. Khi dùng cho `Order`, `T` sẽ là `Order`. Nó giúp code cực kỳ linh hoạt.
+
+File file = new File(filePath);: 
+Kiểm tra xem file có tồn tại không. Nếu lần đầu chạy chương trình (chưa có file `.dat`), nó sẽ trả về danh sách rỗng thay vì báo lỗi và làm sập chương trình.
+
+try (FileInputStream fis ...): 
+Đây là **Try-with-resources**. Nó sẽ tự động đóng file cho Bạn sau khi đọc xong, giúp tránh lỗi "rò rỉ bộ nhớ" (memory leak).
+
+while (fis.available() > 0): 
+"Chừng nào trong file vẫn còn dữ liệu thì còn đọc".
+
+ois.readObject(): Lệnh "giải nén". Nó lấy các byte từ file và biến chúng ngược lại thành đối tượng Java nguyên vẹn.
+
+@SuppressWarnings("unchecked"): 
+Đây là một lời nhắn cho Java: "Tôi biết mình đang ép kiểu về `T`, đừng hiện cảnh báo màu vàng làm phiền tôi".
+
+---
+
+### 2. Hướng dẫn sử dụng Template này trong dự án
+
+Để dùng được template này, Diệp cần phối hợp giữa lớp **`FileUtils`** (nơi chứa hàm) và các lớp **`Management`** (nơi sử dụng).
+
+#### Bước 1: Hoàn thiện FileUtils.java
+
+Diệp chép code mẫu của Diệp vào lớp `FileUtils`. Lưu ý phải `import java.io.*` và `java.util.*`.
+
+#### Bước 2: Gọi hàm để lấy dữ liệu (Trong lớp Manager)
+
+Giả sử Diệp đang ở lớp `CustomerManager`, Diệp sẽ gọi như sau:
+
+```java
+// Khai báo danh sách để chứa khách hàng
+List<Customer> customerList;
+
+// Dùng FileUtils để nạp dữ liệu từ file khi vừa mở chương trình
+customerList = FileUtils.readFromFile("customers.dat");
+
+```
+
+#### Bước 3: Lưu dữ liệu (Sau khi thêm/sửa/xóa)
+
+Diệp dùng hàm `saveToFile` tương ứng:
+
+```java
+// Mỗi khi thêm xong 1 khách hàng, gọi lệnh này để lưu lại ngay
+FileUtils.saveToFile(customerList, "customers.dat");
+
+```
+
+---
+
+### 3. Lưu ý "sống còn" cho Diệp
+
+Để template này hoạt động mà không bị lỗi **`NotSerializableException`**, Diệp phải đảm bảo các Model (`Customer`, `Order`) đã có dòng này ở đầu:
+
+```java
+public class Customer implements java.io.Serializable { ... }
+
+```
+
+---
+
+### Alex Tip 💡:
+
+Diệp thấy không, nhờ có `<T>`, Diệp chỉ cần viết logic đọc file **một lần duy nhất**. Sau này nếu bài Lab có thêm phần quản lý "Nhân viên" hay "Kho hàng", Diệp vẫn dùng lại đúng hàm này mà không phải sửa một chữ nào! Đây chính là sức mạnh của việc **Tái sử dụng code**.
+
+Diệp đã ghép thành công hàm này vào lớp `FileUtils` chưa? Nếu rồi, mình sang bước tiếp theo: Viết lớp **`CustomerManager`** để bắt đầu thực hiện chức năng **Thêm Khách Hàng** nhé! Diệp có muốn Alex hướng dẫn cách viết hàm `addCustomer` không?

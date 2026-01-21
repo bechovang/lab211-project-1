@@ -1,0 +1,90 @@
+Nếu bạn cảm thấy việc override `equals()` và `hashCode()` trong `model/Order.java` quá phức tạp (đặc biệt là phần xử lý ngày tháng `Date` để so sánh), bạn hoàn toàn có thể bỏ qua chúng.
+
+Thay vào đó, bạn hãy dùng phương pháp **"Kiểm tra thủ công bằng vòng lặp"** ngay tại lớp Business (`business/Orders.java`).
+
+Cách này trực quan hơn, dễ debug hơn vì bạn nhìn thấy rõ code so sánh chạy như thế nào.
+
+### Các bước thực hiện thay đổi
+
+#### Bước 1: Dọn dẹp `model/Order.java`
+
+* **Xóa** hoàn toàn hàm `equals(Object o)`.
+* **Xóa** hoàn toàn hàm `hashCode()`.
+* Giữ nguyên các phần khác (Constructor, Getter/Setter, toString).
+
+---
+
+#### Bước 2: Viết hàm kiểm tra trùng lặp trong `business/Orders.java`
+
+Thay vì dựa vào cơ chế ngầm định của Java, chúng ta sẽ tự viết một vòng lặp để kiểm tra. Bạn sẽ viết logic này bên trong hàm `addNewOrder` hoặc tách ra một hàm riêng `checkDuplicate`.
+
+Logic so sánh ngày tháng (bỏ qua giờ phút) vẫn cần thiết, nhưng ta sẽ viết nó tường minh ngay tại đây.
+
+**Cập nhật `business/Orders.java`:**
+
+```java
+package business;
+
+import model.Order;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+public class Orders extends ArrayList<Order> {
+    // ... các khai báo pathFile, loadData giữ nguyên ...
+
+    // Hàm phụ trợ để kiểm tra trùng lặp
+    public boolean isDuplicate(String customerId, String menuId, Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String newDateStr = sdf.format(date); // Chuyển ngày mới nhập thành chuỗi ngày (bỏ giờ)
+
+        for (Order o : this) { // Duyệt qua từng đơn hàng đang có trong danh sách
+            String existDateStr = sdf.format(o.getEventDate()); // Lấy ngày của đơn hàng cũ
+
+            // So sánh 3 yếu tố: Mã Khách && Mã Menu && Ngày tổ chức
+            if (o.getCustomerId().equalsIgnoreCase(customerId) 
+                && o.getMenuId().equalsIgnoreCase(menuId) 
+                && existDateStr.equals(newDateStr)) {
+                
+                return true; // Tìm thấy trùng -> Báo trùng ngay
+            }
+        }
+        return false; // Chạy hết danh sách mà không thấy ai giống -> Không trùng
+    }
+
+    // Cập nhật hàm addNewOrder
+    public void addNewOrder(Order newOrder) {
+        // Kiểm tra trùng trước khi add
+        if (isDuplicate(newOrder.getCustomerId(), newOrder.getMenuId(), newOrder.getEventDate())) {
+            System.out.println("Duplicate order detected! (Trùng khách, menu và ngày)");
+            return; // Dừng lại, không thêm
+        }
+
+        // Nếu không trùng thì thêm và set flag chưa lưu
+        this.add(newOrder);
+        System.out.println("Add order success!");
+        // this.isSaved = false; (nếu có biến này)
+    }
+}
+
+```
+
+### So sánh hai cách tiếp cận
+
+| Đặc điểm | Dùng `equals()` & `hashCode()` (Cách cũ) | Dùng Vòng lặp thủ công (Cách mới) |
+| --- | --- | --- |
+| **Nơi viết code** | Trong `model/Order.java` | Trong `business/Orders.java` |
+| **Cách dùng** | `list.contains(newOrder)` | `this.isDuplicate(...)` |
+| **Độ khó** | Cao (cần hiểu sâu về Object, Hash, Casting) | **Thấp** (chỉ là logic if-else và for loop cơ bản) |
+| **Ưu điểm** | Tận dụng được các hàm có sẵn của bộ thư viện Collection (Set, HashMap) | Code rõ ràng, dễ hiểu, dễ sửa lỗi logic ngày tháng |
+| **Nhược điểm** | Dễ viết sai, khó debug nếu không quen | Phải tự viết vòng lặp mỗi khi muốn kiểm tra |
+
+### Tại sao cách này dễ hơn?
+
+1. **Không cần ép kiểu (Casting):** Bạn không cần dòng `Order other = (Order) o;` dễ gây lỗi.
+2. **Trực quan:** Bạn thấy rõ ràng 3 điều kiện `if` đang được so sánh với nhau bằng mắt thường (`&&`).
+3. **Linh hoạt:** Nếu đề bài đổi ý, bảo là "trùng ngày nhưng khác giờ vẫn tính là trùng", bạn chỉ cần sửa định dạng `SimpleDateFormat` ngay trong hàm này là xong, không ảnh hưởng đến cấu trúc Class Model.
+
+### Bước tiếp theo
+
+Bạn có muốn tôi viết mẫu chi tiết trọn vẹn file `business/Orders.java` sau khi đã thay đổi theo cách "dễ hơn" này để bạn copy vào project không?

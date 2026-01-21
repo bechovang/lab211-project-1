@@ -1,0 +1,343 @@
+1. tạo các folder
+- model
+- business
+- tools (hàm là static hết)
+- dispatcher
+- data : chứa file csv, .dat
+
+
+
+2. tools/Acceptable.java
+- check xem dữ liệu có đúng khung không
+
+- các khung cần làm (là String chứa regex thôi)
+  + CUS_ID_VALID
+  + NAME_VALID
+  + PHONE_VALID
+  + EMAIL_VALID
+  + MENU_ID_VALID
+  + INTEGER_VALID (cho inputter)
+
+- hàm để chạy cái regex trên
+  + static boolean isValid
+    + check data dont null
+    + check data match pattern
+
+
+
+3. tools/Inputter.java
+- để đọc input
+- Mục đích
+  + Scanner rời rạc ở khắp nơi, code sẽ cực kỳ rối và lặp lại. 
+  + Inputter sẽ là nơi chứa các hàm nhập đúng thì mới cho qua.
+
+- các hàm cần viết
+  + getString : nhập vào string và ko rỗng
+  + getInt : là số, ít nhất 1, có dùng lại getString, đề kêu viết hàm này.
+  + getValidString : dùng các regex bên Acceptable (gọi boolean isValid ), 
+                     có dùng lại getString.
+
+
+
+4. model/Customer.java
+
+- implements java.io.Serializable : lưu dữ liệu file dat
+
+- private : các biến id, name... -> bảo mật
+
+- Constructor (Hàm khởi tạo)
+  + Default constructor: Tạo khách hàng rỗng, rồi điền thông tin sau
+  + Full constructor: Tạo và điền đầy đủ
+
+- Getters và Setters
+
+- toString() + String.format : có lý thuyết ở obsidian
+
+
+
+5. model/SetMenu.java (giống Customer nhưng khác dữ liệu)
+
+- implements java.io.Serializable : lưu dữ liệu file dat
+
+- private : các biến menuId, menuName, price, ingredients -> bảo mật
+
+- Constructor (Hàm khởi tạo)
+  + Default constructor: Tạo rỗng, rồi điền thông tin sau
+  + Full constructor: Tạo và điền đầy đủ
+
+- Getters và Setters
+
+- toString() + String.format 
+  + có lý thuyết ở obsidian
+  + ko in ingredients, làm 1 hàm riêng, ở phần sau
+
+
+6. model/Order.java
+
+- import java.util.Date;
+  + dùng private Date eventDate;
+  + dùng Date để có thể so sánh
+
+- implements java.io.Serializable : lưu dữ liệu file dat
+
+- private : các biến orderCode, customerId, menuId, numOfTables, eventDate -> bảo mật
+
+- Constructor (Hàm khởi tạo)
+  + Default constructor: Tạo rỗng, rồi điền thông tin sau
+  + Full constructor: Tạo và điền đầy đủ
+
+- Hàm generateCode() : tạo mã tự động từ timestamp
+  + Chọn kiểu định dạng: yyyyMMddhhmmss
+  + Đảm bảo không ai bị trùng vì thời gian không bao giờ dừng lại!
+  + dùng SimpleDateFormat, format(now) - chuyển thành string
+  + định dạng hh:12h , HH:24h . Hãy dùng HH
+
+- Hàm equals(Object o): Quy tắc để định nghĩa "Trùng nhau"
+  + theo đề: Một đơn hàng bị coi là trùng nếu khớp 3 yếu tố: Khách hàng + Thực đơn + Ngày.
+  + các bước:
+     + 1. Kiểm tra xem có đang so sánh với chính nó không (valid)
+     + 2. Kiểm tra đối tượng truyền vào có bị null hay khác loài (Class) không (valid)
+     + 3. Ép kiểu về Order, vì dầu vào là object
+     + 4. Chuẩn hóa ngày về định dạng yyyyMMdd (chỉ lấy Ngày-Tháng-Năm)
+          chi tiết cực kỳ thông minh! 
+          chỉ lấy phần Ngày-Tháng-Năm để so sánh. 
+          Nếu khách đặt cùng một ngày nhưng khác giờ (9h sáng và 2h chiều) 
+          thì vẫn bị coi là trùng lịch và bị chặn lại.
+     + 5. So sánh 3 yếu tố: CustomerID, MenuID và Ngày (đã ép về chuỗi yyyyMMdd)
+
+- Hàm hashCode()
+  + dùng SimpleDateFormat : yyyyMMdd
+  + dùng Objects.hash(customerId, menuId, sdf.format(eventDate));
+
+- toString()
+  + dùng SimpleDateFormat : yyyyMMdd
+  + String.format
+
+
+* Tại sao phải đi đôi equals() và hashCode()? - đọc txt
+
+* Tránh nhầm lẫn với Business Layer
+  - phân biệt rõ giữa 
+    + Order.java (trong model) 
+    + và Orders.java (có chữ s, trong business):
+
+
+
+7. tools/FileUtils
+- tương tác với các file
+- saveToFile : Hàm lưu danh sách bất kỳ xuống file nhị phân (Serializable)
+  + 1. Try-with-resources: Tự động đóng file sau khi ghi xong (rất an toàn)
+  + 2. ObjectOutputStream: Bộ "đóng gói" đối tượng thành dãy byte nhị phân
+  + 3. Vòng lặp For-each: Duyệt qua từng đối tượng trong danh sách
+  + 4. writeObject: Lệnh "phóng" đối tượng xuống file
+*FileOutputStream : mở file để ghi
+*ObjectOutputStream : ghi object vô file
+
+- readFromFile : Hàm đọc danh sách bất kỳ từ file nhị phân
+  + 0. Nếu chưa có file thì thôi, trả về danh sách rỗng
+  + 1. ObjectInputStream: Bộ giải mã đối tượng
+  + 2. available(): Kiểm tra xem trong file còn byte nào để đọc không
+  + 3. readObject(): Lệnh "hồi sinh" đối tượng từ dãy byte nhị phân
+* trả về danh sách : public static <T> List<T> readFromFile (String filePath)
+
+- Hàm đọc file CSV (readMenus)
+  + 1. BufferedReader: Giống như một cái phễu, giúp đọc file văn bản theo từng dòng cho nhanh
+  + 2. readLine(): Đọc cho đến khi hết file (null)
+  + 3. split(","): Chẻ dòng chữ thành các mẩu nhỏ dựa vào dấu phẩy
+  + 4. trim(): Cắt bỏ khoảng trắng thừa ở hai đầu
+  + 5. parseDouble: Đổi từ chữ "150000" sang số 150000.0 để tính toán
+
+
+* xem syntax # LAB211 syntax FileUtils - obsidian
+
+
+8. business/Customers.java
+
+- extends ArrayList<Customer> : dùng List
+- pathFile: 
+  + đường dẫn dẫn đến file .dat 
+  + thường là "data/customers.dat".
+- isSaved: 
+  + Đây là cái "chuông cảnh báo". 
+  + Nếu thêm/sửa mà chưa lưu vào file thì biến này sẽ là false.
+*public Customers() - construction để config
+
+- "Thêm - Sửa - Tìm" (Logic nghiệp vụ)
+  + addNew: 
+    + Không chỉ là add
+    + phải dùng vòng lặp for để quét xem ID mới nhập có bị trùng không. 
+    + Nếu trùng thì chặn lại ngay.
+    + dùng for each được
+  + update: 
+    + tìm khách hàng theo ID
+    + nếu thấy thì dùng lệnh this.set(index, newValue) để ghi đè thông tin mới.
+    + dùng For i để có index để thay đổi, length = this.size(), this[i] -> this.get(i);
+  + searchById: 
+    + Một hàm nhỏ nhưng rất lợi hại
+    + giúp các lớp khác (như lớp đặt tiệc) tìm đúng khách hàng để liên kết dữ liệu.
+
+
+- Thiết kế bộ lọc và hiển thị (Filter & Show)
+  + Để người dùng dễ nhìn, cần làm các hàm xuất dữ liệu ra màn hình:
+
+  + filterByName: 
+    + tạo một cái túi phụ (List<Customer> result)
+    + duyệt qua danh sách chính
+    + ai có tên chứa từ khóa (dùng .contains()) thì bỏ vào túi phụ đó.
+
+  + showAll (Overloading):
+    + làm 2 bản. 
+    + Một bản in hết sạch
+    + một bản chỉ in danh sách đã được lọc.
+*tại sao có 2 bản -> đọc txt
+
+- Kết nối với FileUtils
+  + readFromFile: 
+    + Gọi lệnh từ FileUtils để nạp dữ liệu vào danh sách ngay khi chương trình vừa khởi động.
+  + saveToFile: 
+    + Chuyển 'this' (đối tượng Customers) thành một ArrayList để gọi saveToFile
+
+
+
+9. business/Customers.java
+
+- extends ArrayList<SetMenu> : dùng List
+- pathFile: 
+  + đường dẫn dẫn đến file .dat 
+  + thường là "data/customers.dat".
+- loadData();
+  + vừa tạo đối tượng là nạp dữ liệu luôn
+* gọi loadData() trong constructor luôn
+
+
+- loadData()
+  + Liên kết file Excel (CSV) và chương trình Java
+
+- getMenuById
+  + liên quan đến việc đặt tiệc
+  + for each
+  + equalsIgnoreCase
+
+* Tại sao lớp này không có hàm addNew, update, hay saveToCSV
+  + Tính chất: 
+    + Thực đơn (Feast Menu) là quy định của nhà hàng
+    + khách hàng (và cả người viết app) không được tự ý sửa đổi.
+
+  + Bảo mật: 
+    + Chỉ đọc (Read-only) giúp dữ liệu gốc trong file FeastMenu.csv luôn an toàn
+    + không bị xóa nhầm hay sửa bậy.
+
+
+
+10. business/orders.java
+
+- extends ArrayList<Order> : dùng List
+- pathFile: 
+  + đường dẫn dẫn đến file .dat 
+  + thường là "data/Orders.dat".
+- isSaved: 
+  + Nếu thêm/sửa mà chưa lưu vào file thì biến này sẽ là false.
+
+- addNewOrder	
+  + truyền vào: Order, Customers, FeastMenus	
+  + Để máy có đủ dữ liệu kiểm tra chéo (Check ID khách và Giá món).
+  + listKH.searchById : check
+  + listMenu.getMenuByID : check
+
+- Kết nối với FileUtils
+  + readFromFile: 
+    + Gọi lệnh từ FileUtils
+  
+  + saveToFile: 
+    + Chuyển 'this' (đối tượng Customers) thành một ArrayList để gọi saveToFile
+
+
+
+11. dispatchcher/Main.java
+*chỉnh lại file main - đọc txt
+
+- đóng vai trò là "bộ não" điều phối, kết nối người dùng với các xử lý nghiệp vụ bên dưới.
+
+- Thành phần khởi tạo (Cấu hình hệ thống)
+  + Scanner (sc):
+    + Dùng riêng để quản lý việc nhập số lựa chọn trong Menu
+    + tránh lỗi trôi lệnh - nhập sai . 
+
+- Khởi tạo các "Túi" nghiệp vụ: 
+  + `listKH` (Customers): Quản lý toàn bộ khách hàng.
+  + `listMenu` (FeastMenus): Chứa 12 thực đơn cố định của nhà hàng.
+  + `listOrder` (Orders): Quản lý các đơn đặt tiệc.
+*Tại sao dùng static final?
+- Để các túi dữ liệu này tồn tại duy nhất và xuyên suốt chương trình
+- không bị mất đi khi chuyển đổi giữa các hàm. 
+
+- Luồng chạy chính (Hàm Main)
+  + 1. Nạp dữ liệu cũ: 
+    + Gọi `readFromFile()` từ KH và Order khi mở app 
+    + để lấy lại dữ liệu từ file `.dat`. 
+  + 2. Chạy vòng lặp Menu: 
+    + Gọi `runMenu()` để bắt đầu giao diện. 
+
+- Thiết kế Menu (Vòng lặp & Phòng thủ)
+  + do-while loop: 
+    + Giữ cho chương trình luôn chạy
+    + chỉ thoát khi người dùng bấm phím `0`. 
+
+- try-catch (Phòng thủ):
+  + Nếu người dùng nhập chữ thay vì nhập số
+  + chương trình sẽ báo lỗi và kêu nhập lại thay vì bị văng (crash). 
+
+- switch-case:
+  + Phân luồng yêu cầu người dùng đến đúng hàm xử lý (Register, Update, Order...). 
+
+
+
+- Logic chức năng chính (Tận dụng Tools & Business)
+
+  + 1. Đăng ký khách hàng (`addNewCustomer`)
+    + Tận dụng Inputter Static (folder tools):
+    + Gọi trực tiếp `Inputter.getValidString` mà không cần tạo mới đối tượng. 
+    + Tận dụng Acceptable Regex: 
+      + Ép người dùng nhập đúngư:
+        + định dạng ID (Cxxxx)
+        + SĐT, Email.
+ 
+  + 2. Cập nhật khách hàng (`updateCustomer`)
+    + searchById: 
+      + Tìm khách hàng trong túi `listKH` trước. 
+      + Nếu thấy (`!= null`) mới cho phép sửa. 
+    + dùng setter
+    + dùng tools
+
+
+  + 3. Đặt tiệc mới (`addNewOrder`) - Phối hợp 3 bên
+    + 1. (Check Khách): Yêu cầu nhập mã khách và kiểm tra xem khách đó có tồn tại không. 
+    + 2 (Check Món): Hiển thị thực đơn nhà hàng (`showAll`), yêu cầu khách chọn mã món hợp lệ. 
+    + Bước 3 (Xử lý ẩn): Sau khi có đủ dữ liệu, đẩy sang `listOrder.addNew`. Tại đây, máy sẽ tự động tính tiền và tạo mã đơn hàng bằng thời gian thực (`generateCode`). 
+
+
+  + 4. Lưu dữ liệu (`saveData`)
+    + saveToFile
+       + ListKH
+       + ListOrder 
+
+  + 5. Hiển thị đơn hàng (`showOrders`)
+    + Duyệt qua `listOrder` 
+    + gọi hàm `toString()` của mỗi đơn hàng để in ra thông tin chi tiết. 
+
+
+* có file syntax main -> obsidian
+
+
+
+
+
+
+
+
+
+
+
+
+
+

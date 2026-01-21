@@ -1,0 +1,66 @@
+Chào Phúc! Trong NetBeans, việc di dời file Main từ package này sang package khác là chuyện rất bình thường, nhưng bạn cần thực hiện đúng cách để không bị lỗi "không tìm thấy lớp chính" (Main Class not found) khi nhấn nút Run.
+
+Việc chuyển qua package `dispatcher` là **cực kỳ ổn** vì nó giúp cấu trúc code của bạn nhìn chuyên nghiệp và đúng chuẩn "phân lớp" (MVC) hơn.
+
+---
+
+### Các bước để chuyển đổi "an toàn"
+
+#### **Bước 1: Tạo file Main mới**
+
+1. Chuột phải vào package `com.mycompany.lab1.dispatcher`.
+2. Chọn **New** -> **Java Class** và đặt tên là `Main`.
+3. Copy toàn bộ nội dung từ file `Lab1.java` cũ sang file `Main.java` mới này.
+
+#### **Bước 2: Sửa dòng khai báo Package**
+
+Sau khi copy, hãy đảm bảo dòng đầu tiên của file mới phải là:
+`package com.mycompany.lab1.dispatcher;`
+
+#### **Bước 3: Thiết lập lại "Lớp chính" cho dự án (Quan trọng)**
+
+Vì Phúc vừa đổi chỗ file Main, NetBeans sẽ vẫn tìm file cũ để chạy. Bạn cần "chỉ đường" lại cho nó:
+
+1. Chuột phải vào tên Project (`lab1`) ở cột bên trái.
+2. Chọn **Properties**.
+3. Chọn mục **Run** ở danh sách bên trái cửa sổ mới hiện ra.
+4. Ở dòng **Main Class**, nhấn nút **Browse** và chọn đúng file `com.mycompany.lab1.dispatcher.Main`.
+5. Nhấn **OK**.
+
+#### **Bước 4: Xóa file cũ**
+
+Bây giờ bạn có thể an tâm xóa file `Lab1.java` ở package cũ đi cho gọn bộ nhớ.
+
+---
+
+### Tại sao nên làm vậy?
+
+* **Tránh nhầm lẫn:** Package gốc thường chỉ dùng để chứa các lớp khởi đầu đơn giản.
+* **Tính tổ chức:** Khi nhìn vào project, người ta thấy ngay package `dispatcher` là biết đây là nơi điều khiển toàn bộ chương trình.
+* **Dễ bảo trì:** Sau này nếu dự án to ra, bạn sẽ thấy việc phân chia này giúp bạn tìm file nhanh hơn rất nhiều.
+
+---
+
+**Alex Tip cho Phúc 💡:** Sau khi đổi xong, Phúc hãy nhấn thử tổ hợp phím **Shift + F6** (để chạy riêng file đó) xem nó có hiện Menu lên không. Nếu hiện là bạn đã thành công 100% rồi!
+
+Phúc đã thực hiện việc chuyển đổi này trong NetBeans chưa?
+
+**Bước tiếp theo:** Khi file Main đã nằm đúng vị trí, Phúc có muốn mình gửi code chi tiết cho hàm **`processChoice`** với các chức năng như: `Thêm khách hàng`, `Cập nhật thông tin`, `Đặt tiệc` và `Lưu file` không?
+
+===================
+
+
+1. Chỉ định lại Main Class trong Project Properties
+Bạn cần thực hiện các bước sau để NetBeans biết đường dẫn mới:
+
+Chuột phải vào Project lab1 (biểu tượng tách cà phê) ở cột bên trái.
+
+Chọn Properties.
+
+Chọn mục Run ở cột danh sách bên trái cửa sổ.
+
+Tại dòng Main Class, hãy nhấn nút Browse....
+
+NetBeans sẽ quét và hiển thị lớp Main mới của bạn (ví dụ: com.mycompany.lab1.dispatcher.Main). Hãy chọn nó và nhấn Select Main Class.
+
+Nhấn OK để lưu lại.

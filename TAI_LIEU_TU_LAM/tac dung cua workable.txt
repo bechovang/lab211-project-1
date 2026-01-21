@@ -1,0 +1,67 @@
+  Workable<T> là Generic Interface để đảm bảo nhất quán giữa các class Business (Customers, Orders).
+
+  Vấn đề mà Workable giải quyết:
+
+  Theo guide, nếu:
+  - Thành viên A làm class Customers
+  - Thành viên B làm class Orders
+
+  → Rất khó đảm bảo cả 2 đều implement đúng các methods cần thiết!
+
+  Workable giải quyết bằng cách:
+
+  1. Định nghĩa contract (hợp đồng) bắt buộc:
+
+  public interface Workable<T> {
+      void addNew(T x);        // Phai co method them moi
+      void update(T x);        // Phai co method cap nhat
+      T searchById(String id); // Phai co method tim kiem
+      void showAll();          // Phai co method hien thi
+  }
+
+  2. Bắt buộc các class phải implement đầy đủ:
+
+  // Customers PHẢI implement đủ 4 methods trên
+  public class Customers extends ArrayList<Customer>
+      implements Workable<Customer> {
+      @Override
+      public void addNew(Customer x) { ... }
+      @Override
+      public void update(Customer x) { ... }
+      @Override
+      public Customer searchById(String id) { ... }
+      @Override
+      public void showAll() { ... }
+  }
+
+  // Orders CŨNG PHẢI implement đủ 4 methods
+  public class Orders extends ArrayList<Order>
+      implements Workable<Order> {
+      @Override
+      public void addNew(Order x) { ... }
+      @Override
+      public void update(Order x) { ... }
+      @Override
+      public Order searchById(String id) { ... }
+      @Override
+      public void showAll() { ... }
+  }
+
+  Lợi ích:
+
+  1. Nhất quán: Đảm bảo Customers và Orders có cùng "hành vi" cơ bản
+  2. An toàn: Compiler báo lỗi nếu thiếu method nào
+  3. Dễ bảo trì: Nhìn vào interface là biết class đó làm được gì
+  4. Polymorphism: Có thể viết code chung:
+  Workable<Customer> w = new Customers();
+  w.addNew(...);  // Chac chan co method nay
+
+  Có BẮT BUỘC không?
+
+  Theo guide thì không bắt buộc, nhưng rất nên dùng vì:
+  - Đạt điểm cao hơn (design tốt)
+  - Chuyên nghiệp hơn
+  - Dễ mở rộng sau này
+
+  ---
+  Tóm lại: Workable là "bản kế hoạch" bắt buộc các class Business phải làm theo!

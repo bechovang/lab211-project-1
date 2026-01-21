@@ -1,0 +1,14 @@
+1. Bản chất thật sự của Interface (Giao diện)
+Ý nghĩa gốc và quan trọng nhất của interface là tạo ra một Bản Hợp Đồng (Contract) hoặc một Quy chuẩn chung.
+
+Không có static: Nếu Acceptable là một interface thuần túy ngày xưa, nó sẽ định nghĩa hành vi mà các class khác phải làm theo.
+
+Ví dụ: Nếu class Inputter implements Acceptable, thì Inputter buộc phải viết code cho các hàm trong Acceptable.
+
+
+2. Bản chất của Static (Tĩnh)
+Là những gì thuộc về "lớp" (class/interface) chứ không thuộc về "đối tượng" (object).
+
+Đặc tính: Dùng chung, tiện ích, không cần khởi tạo.
+
+Mục đích: Để làm công cụ hỗ trợ (Utility).

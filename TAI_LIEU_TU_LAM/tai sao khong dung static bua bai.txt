@@ -1,0 +1,57 @@
+Chào Diệp! Rất vui vì bạn đã chủ động muốn tổng hợp lại kiến thức này. Việc hiểu rõ tại sao thầy giáo lại khắt khe với chữ `static` sẽ giúp tư duy lập trình của bạn "lên trình" rất nhanh đấy.
+
+Dưới đây là bản tổng hợp ngắn gọn để Diệp ghi chú vào Obsidian nhé:
+
+### 1. Bản chất: "Của chung" (Static) vs "Của riêng" (Non-static)
+
+* **Static (Tĩnh):** Thuộc về **Lớp (Class)**. Nó tồn tại duy nhất một bản sao cho toàn bộ chương trình.
+* **Non-static (Instance):** Thuộc về **Đối tượng (Object)**. Mỗi khách hàng (`Customer`) hay đơn hàng (`Order`) sẽ có một bản sao riêng biệt cho các thuộc tính của mình.
+
+### 2. Lý do không dùng `static` bừa bãi trong bài Lab
+
+#### A. Vi phạm tính Đóng gói (Encapsulation)
+
+* Mục tiêu của OOP là mỗi đối tượng phải tự quản lý dữ liệu của chính nó.
+* Nếu Diệp để `id` hay `name` là `static`, thì khi bạn sửa tên của khách hàng B, tên của khách hàng A cũng bị đổi theo vì chúng dùng chung một vùng nhớ.
+
+#### B. Ngăn cản sự Đa hình & Liên kết động (Dynamic Linking)
+
+* **Dynamic Linking** cho phép Java quyết định sẽ gọi hàm nào của đối tượng nào ngay lúc đang chạy (Runtime).
+* Hàm `static` được liên kết ngay lúc biên dịch (**Static Linking**), nên nó không thể bị ghi đè (`Override`). Điều này khiến Diệp không thể tùy biến cách hiển thị riêng cho từng loại đơn hàng trong danh sách.
+
+#### C. Khó bảo trì và mở rộng
+
+* Dùng `static` khiến các lớp bị phụ thuộc chặt chẽ vào nhau (Tight Coupling).
+* Trong bài Lab, Diệp cần tạo nhiều `Order`. Nếu dùng `static`, Diệp không thể quản lý một danh sách gồm hàng trăm đơn hàng khác nhau một cách độc lập được.
+
+### 3. Khi nào MỚI NÊN dùng `static`?
+
+Diệp chỉ nên dùng `static` cho những trường hợp sau trong bài dự án này:
+
+* **Hằng số dùng chung:** Các mẫu Regex trong `Acceptable.java`.
+* **Hàm tiện ích (Utility):** Các hàm đọc/ghi file trong `FileUtils.java` hoặc hàm nhập liệu trong `Inputter.java` (vì chúng không cần lưu trữ trạng thái riêng của đối tượng nào).
+* **Định dạng chung:** Các đường kẻ bảng `getHeader()`, `getFooter()`.
+
+---
+
+**Alex Tip 💡:** Diệp cứ nhớ quy tắc: *"Nếu cái gì mà mỗi người (đối tượng) có một giá trị khác nhau, thì tuyệt đối không được thêm `static`."*
+
+Diệp đã thấy "thông suốt" hơn về lời thầy dạy chưa? Nếu rồi, mình sang **Step 5: FileUtils.java** để viết hàm lưu dữ liệu dùng chung cực xịn nhé!
+
+
+
+
+
+
+
+
+=======
+
+
+
+1. Vấn đề với chữ static
+Diệp đang để private Scanner scanner và các hàm không có chữ static.
+
+Hệ quả: Mỗi lần muốn nhập gì đó ở lớp khác, Diệp lại phải gõ Inputter input = new Inputter(); rồi mới dùng được.
+
+Lời khuyên: Diệp nên thêm static vào các hàm và biến scanner để có thể gọi trực tiếp Inputter.getString(...) ở bất cứ đâu cho tiện (giống như cái kìm, cái búa dùng chung vậy).

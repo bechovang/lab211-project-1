@@ -1,0 +1,179 @@
+==============================================================================
+                    NHAT KY LAM BAI - PROJECT 1
+            Traditional Feast Order Management System
+                    Mon hoc: LAB211
+==============================================================================
+Ngay lam: 22/01/2026
+
+==============================================================================
+I. TONG QUAN DU AN
+==============================================================================
+- Ten project: Traditional Feast Order Management
+- Muc tieu: Quan ly dat tiec truyen thong
+- Muc tieu LOC: ~200 LOC (Lines of Code)
+- Ky that: Java, Maven, nLayers architecture
+
+==============================================================================
+II. CAU TRUC THU MUC (nLayers Architecture)
+==============================================================================
+lab1/
+├── src/main/java/com/mycompany/lab1/
+│   ├── model/                    (Model Layer - Du lieu)
+│   │   ├── Customer.java         (implements Serializable)
+│   │   ├── SetMenu.java
+│   │   └── Order.java            (implements Serializable, equals, hashCode)
+│   │
+│   ├── business/                 (Business Layer - Nghiep vu)
+│   │   ├── Workable.java         (Generic Interface <T>)
+│   │   ├── Customers.java        (extends ArrayList, implements Workable<Customer>)
+│   │   ├── Orders.java           (extends ArrayList, implements Workable<Order>)
+│   │   └── FeastMenus.java       (extends ArrayList, doc CSV)
+│   │
+│   ├── tools/                    (Neutral Layer - Cong cu)
+│   │   ├── Acceptable.java       (Interface - Regex patterns)
+│   │   ├── Inputter.java         (Low coupling, High cohesion)
+│   │   └── FileUtils.java        (Generic methods)
+│   │
+│   └── dispatcher/               (Control Layer - Dieu khien)
+│       └── Main.java             (Menu & Xu ly chinh)
+│
+├── data/                         (Du lieu)
+│   ├── customers.dat
+│   ├── orders.dat
+│   └── FeastMenu.csv
+│
+└── nhatkylambai.txt              (File nay)
+
+==============================================================================
+III. CAC CHUC NANG DA TRIEN KHAI
+==============================================================================
+1. Register customers          - Dang ky khach hang moi
+2. Update customer information - Cap nhat thong tin khach hang
+3. Display feast menus         - Hien thi danh sach thuc don
+4. Place a feast order         - Dat tiec moi
+5. Save data to file           - Luu du lieu vao file
+6. Display orders              - Hien thi danh sach don hang
+
+==============================================================================
+IV. CAC KY THUAT DA SU DUNG
+==============================================================================
+1. OOP Concepts:
+   - Encapsulation: private attributes, getters/setters
+   - Inheritance: extends ArrayList<Customer/Order/SetMenu>
+   - Polymorphism: implements Workable<T>, override methods
+   - Abstraction: Interface Workable<T>
+
+2. Design Patterns:
+   - nLayers Architecture (Model-Business-Tools-Dispatcher)
+   - Generic Types: Workable<T>, FileUtils methods
+   - Generic Methods: readFromFile(), saveToFile()
+
+3. Advanced Techniques:
+   - Regular Expression (Regex) validation
+   - Serializable interface (Object file I/O)
+   - equals() and hashCode() override (Set collection)
+   - Timestamp for unique ID generation
+   - Low coupling - High cohesion principles
+
+4. File I/O:
+   - Text file (CSV) - BufferedReader/FileWriter
+   - Object file (.dat) - ObjectInputStream/ObjectOutputStream
+
+==============================================================================
+V. CAC BUG DA SUA (NGAY 22/01/2026)
+==============================================================================
+1. Acceptable.java - Dong 17:
+   - LOI: INTEGER_VALID = "^0\\d{1,}$" (Chi chap nhan so BAT DAU bang 0)
+   - FIX: INTEGER_VALID = "^[1-9]\\d*" (So nguyen duong, ko bat dau bang 0)
+
+2. FileUtils.java - Dong 57-58:
+   - LOI: while (line != null) { line = br.readLine(); ... }
+          -> NullPointerException khi het file
+   - FIX: while ((line = br.readLine()) != null) { ... }
+
+3. Main.java - Dong 72:
+   - LOI: listKH.add(new Customer(...)) (Bo qua check trung)
+   - FIX: listKH.addNew(new Customer(...)) (Co check trung)
+
+==============================================================================
+VI. THEM WORKABLE INTERFACE (NGAY 22/01/2026)
+==============================================================================
+- Muc dich: Dam bao nhat quat giua Customers va Orders
+- Trien khai:
+
+  1. Tao Workable.java (Generic Interface):
+     public interface Workable<T> {
+         void addNew(T x);
+         void update(T x);
+         T searchById(String id);
+         void showAll();
+     }
+
+  2. Customers implements Workable<Customer>
+  3. Orders implements Workable<Order>
+     - Them methods: addNew(), update(), searchById(), showAll()
+     - Them isDuplicate() method
+
+==============================================================================
+VII. THONG KE LOC (Lines of Code)
+==============================================================================
+Model Layer:
+- Customer.java       ~70 LOC
+- SetMenu.java        ~70 LOC
+- Order.java         ~140 LOC
+Tong Model: ~280 LOC
+
+Business Layer:
+- Workable.java       ~20 LOC
+- Customers.java      ~125 LOC
+- Orders.java         ~120 LOC
+- FeastMenus.java     ~60 LOC
+Tong Business: ~325 LOC
+
+Tools Layer:
+- Acceptable.java     ~35 LOC
+- Inputter.java       ~50 LOC
+- FileUtils.java      ~85 LOC
+Tong Tools: ~170 LOC
+
+Dispatcher Layer:
+- Main.java          ~145 LOC
+Tong Dispatcher: ~145 LOC
+
+TONG CONG: ~920 LOC (bao gom comment, blank lines)
+Pure code (khong tinh comment/blank): ~600-700 LOC
+
+==============================================================================
+VIII. TRANG THAI DU AN
+==============================================================================
+[✓] Hoan thien Model Layer
+[✓] Hoan thien Tools Layer
+[✓] Hoan thien Business Layer
+[✓] Hoan thien Dispatcher Layer
+[✓] Sua cac bug logic
+[✓] Them Workable interface
+[✓] Code review theo guide
+
+Trang thai: DA HOAN THANH - SAN SANG NOP BAI
+
+==============================================================================
+IX. CAC TEP TIN Lien QUan
+==============================================================================
+- Guide:      D:\FPT_Ky3\LAB211\LAB_PROJECT\project 1 ans\guide project 1.txt
+- Answer:     D:\FPT_Ky3\LAB211\LAB_PROJECT\project 1 ans\01_J1.L.P0028...
+- Project:    D:\FPT_Ky3\LAB211\LAB_PROJECT\project 1\lab1
+
+==============================================================================
+X. GHI CHU
+==============================================================================
+- Code tuan thu moi thiet ke theo guide
+- Ap dung nLayers architecture chuan
+- Su dung Generic types va Generic methods
+- Validation bang Regex pattern
+- File I/O ca text file va object file
+- Low coupling - High cohesion trong Inputter class
+
+==============================================================================
+NGUOI THUC HIEN: ________________________
+NGAY HOAN THANH: 22/01/2026
+==============================================================================

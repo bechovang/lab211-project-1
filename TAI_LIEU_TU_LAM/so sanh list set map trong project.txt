@@ -1,0 +1,41 @@
+tại sao chúng ta vẫn đang dùng `ArrayList` thay vì `Map` hay `Set`:
+
+---
+
+### 1. Tại sao không dùng `Set`?
+
+Mặc dù `Set` giúp ngăn chặn trùng lặp tự động, nhưng trong bài Lab này, chúng ta chọn `ArrayList` vì:
+
+- Thứ tự lưu trữ: 
+  + `ArrayList` giữ đúng thứ tự bạn nhập vào (người nào đặt trước hiện trước). 
+  + `Set` (như `HashSet`) sẽ làm đảo lộn thứ tự đó.
+
+- Kiểm soát thủ công (đề kêu):
+  + Đề bài muốn bạn tự viết logic kiểm tra trùng (`equals`, `contains`) để chấm điểm tư duy. 
+  + Nếu dùng `Set`, nó tự chặn luôn thì bạn không "khoe" được đoạn code so sánh ngày tháng `yyyyMMdd` rất xịn mà bạn vừa viết.
+
+- Serializable:
+  +  `ArrayList` hỗ trợ lưu file nhị phân rất mượt mà và phổ biến trong các bài Lab cơ bản.
+  + ko bị mất thứ tự
+
+---
+
+### 2. Tại sao không dùng `Map`?
+
+`Map` (dạng Key-Value) cực mạnh khi bạn muốn tìm kiếm cực nhanh (như tra từ điển). Tuy nhiên:
+
+* **Dữ liệu đa trường:** Một `Order` có rất nhiều thông tin (Mã khách, Mã Menu, Ngày, Tiền). Nếu dùng `Map`, bạn định dùng cái gì làm **Key**? Nếu dùng `OrderCode` làm Key thì bạn lại khó kiểm tra trùng theo cụm (Khách + Menu + Ngày).
+* **Yêu cầu đề bài:** Thông thường các bài LAB211 giai đoạn đầu yêu cầu kế thừa `ArrayList` để bạn làm quen với việc quản lý danh sách động và các vòng lặp duyệt đối tượng.
+
+---
+
+### 💡 Bảng so sánh cho Phúc dễ hình dung
+
+| Đặc điểm | `ArrayList` (Phúc đang dùng) | `Set` | `Map` |
+| --- | --- | --- | --- |
+| **Trùng lặp** | Cho phép (Phúc tự chặn bằng `contains`) | Tự động chặn trùng hoàn toàn | Key không được trùng |
+| **Tìm kiếm** | Phải duyệt vòng lặp (Chậm hơn tí) | Nhanh | Cực nhanh (bằng Key) |
+| **Thứ tự** | Giữ nguyên thứ tự nhập | Thường là lộn xộn | Theo Key hoặc lộn xộn |
+| **Độ khó** | Dễ quản lý, phù hợp lưu file | Khó hơn khi cần sửa dữ liệu | Phức tạp nhất |
+
+---
